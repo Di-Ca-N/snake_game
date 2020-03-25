@@ -16,14 +16,14 @@ class SnakeGame:
 
     def __init__(self):
         self.fruit = (None, None)
-        self.speed = 5
+        self.speed = self.INITIAL_SPEED
         self.alive = True
 
         self.score = 0
         self.walls = ()
 
         self._snake_direction = self.DIRECTIONS.LEFT
-        self.snake = deque()
+        self.snake = deque() # deque choosen over list for performance purposes
 
     def new_game(self):
         self.alive = True
@@ -46,15 +46,20 @@ class SnakeGame:
 
     @snake_direction.setter
     def snake_direction(self, new_direction):
+        """Sets the new direction if it is not opposite to current"""
+
         row_sum = self._snake_direction.value[0] + new_direction.value[0]
         col_sum = self._snake_direction.value[1] + new_direction.value[1]
 
+        # If the new direction and the current direction are contrary, 
+        # their sum will be (0, 0)     
         if (row_sum, col_sum) != (0, 0):
             self._snake_direction = new_direction
 
     def init_snake(self):
         self.snake.clear()
 
+        # Snake starts at center of board
         self.snake.append((self.BOARD_SIZE[0] // 2, self.BOARD_SIZE[1] // 2))
         row_mod, col_mod = self.snake_direction.value
 
@@ -71,6 +76,8 @@ class SnakeGame:
         row_move, col_move = self.snake_direction.value
         old_row, old_col = self.snake[0]
 
+        # Module operations to make the snake passes to other side of 
+        # board once hits the border
         new_row = (old_row + row_move) % self.BOARD_SIZE[0]
         new_col = (old_col + col_move) % self.BOARD_SIZE[1]
 
@@ -90,7 +97,7 @@ class SnakeGame:
         self.snake.appendleft(new_position)
 
     def eat_fruit(self):
-        self.snake.append(self.fruit)
+        self.snake.appendleft(self.fruit)
         self.score += 1
         self.spawn_fruit()
         self.update_speed()
